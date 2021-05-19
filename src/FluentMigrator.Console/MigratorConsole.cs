@@ -496,7 +496,6 @@ namespace FluentMigrator.Console
                         .AddPostgres()
                         .AddPostgres92()
                         .AddRedshift()
-                        .AddSqlAnywhere()
                         .AddSQLite()
                         .AddSqlServer()
                         .AddSqlServer2000()
@@ -504,8 +503,7 @@ namespace FluentMigrator.Console
                         .AddSqlServer2008()
                         .AddSqlServer2012()
                         .AddSqlServer2014()
-                        .AddSqlServer2016()
-                        .AddSqlServerCe());
+                        .AddSqlServer2016());
             return services;
         }
     }

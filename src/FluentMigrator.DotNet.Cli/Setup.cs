@@ -29,6 +29,7 @@ using McMaster.Extensions.CommandLineUtils;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace FluentMigrator.DotNet.Cli
 {
@@ -89,7 +90,6 @@ namespace FluentMigrator.DotNet.Cli
                         .AddPostgres10_0()
                         .AddPostgres11_0()
                         .AddRedshift()
-                        .AddSqlAnywhere()
                         .AddSQLite()
                         .AddSqlServer()
                         .AddSqlServer2000()
@@ -97,8 +97,7 @@ namespace FluentMigrator.DotNet.Cli
                         .AddSqlServer2008()
                         .AddSqlServer2012()
                         .AddSqlServer2014()
-                        .AddSqlServer2016()
-                        .AddSqlServerCe());
+                        .AddSqlServer2016());
 
             services
                 .AddSingleton<IConventionSet>(conventionSet)
@@ -157,8 +156,9 @@ namespace FluentMigrator.DotNet.Cli
 
         private static void Configure(ILoggerFactory loggerFactory)
         {
-            loggerFactory
-                .AddDebug(LogLevel.Trace);
+            // loggerFactory
+            //     .AddFluentMigratorConsole()
+            //     .AddDebug(LogLevel.Trace);
         }
 
         private static IMapper ConfigureMapper()
