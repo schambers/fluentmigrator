@@ -30,7 +30,7 @@ namespace FluentMigrator.Runner.Generators.Firebird
 {
     internal class FirebirdColumn : ColumnBase
     {
-        public FirebirdColumn([NotNull] FirebirdOptions fbOptions) : base(new FirebirdTypeMap(), new FirebirdQuoter(fbOptions.ForceQuote))
+        public FirebirdColumn([NotNull] FirebirdOptions fbOptions, FirebirdQuoter quoter) : base(new FirebirdTypeMap(), quoter)
         {
             FBOptions = fbOptions;
 

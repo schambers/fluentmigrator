@@ -56,7 +56,7 @@ namespace FluentMigrator.Runner.Processors.Firebird
         {
             FBOptions = fbOptions ?? throw new ArgumentNullException(nameof(fbOptions));
             _firebirdVersionFunc = new Lazy<Version>(GetFirebirdVersion);
-            _quoter = new FirebirdQuoter(fbOptions.ForceQuote);
+            _quoter = new FirebirdQuoter(fbOptions.ForceQuote, new OptionsWrapper<QuoterOptions>(new QuoterOptions()));
             truncator = new FirebirdTruncator(FBOptions.TruncateLongNames, FBOptions.PackKeyNames);
             ClearLocks();
             ClearDDLFollowers();

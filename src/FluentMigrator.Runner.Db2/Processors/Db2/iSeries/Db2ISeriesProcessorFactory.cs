@@ -20,6 +20,7 @@ using System;
 
 using FluentMigrator.Runner.Generators;
 using FluentMigrator.Runner.Generators.DB2.iSeries;
+using FluentMigrator.Runner.Initialization;
 
 using Microsoft.Extensions.Options;
 
@@ -44,7 +45,7 @@ namespace FluentMigrator.Runner.Processors.DB2.iSeries
         public override IMigrationProcessor Create(string connectionString, IAnnouncer announcer, IMigrationProcessorOptions options)
         {
             var factory = new Db2ISeriesDbFactory(_serviceProvider);
-            var quoter = new Db2ISeriesQuoter();
+            var quoter = new Db2ISeriesQuoter(new OptionsWrapper<QuoterOptions>(new QuoterOptions()));
             var connection = factory.CreateConnection(connectionString);
             var generatorOptions = new OptionsWrapper<GeneratorOptions>(new GeneratorOptions());
             return new Db2ISeriesProcessor(connection, new Db2ISeriesGenerator(quoter, generatorOptions), announcer, options, factory);

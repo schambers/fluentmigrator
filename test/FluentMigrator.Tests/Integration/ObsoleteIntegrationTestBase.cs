@@ -37,9 +37,11 @@ using FluentMigrator.Runner.Generators.MySql;
 using FluentMigrator.Runner.Processors.Firebird;
 using FluentMigrator.Runner.Generators.Firebird;
 using FluentMigrator.Runner.Generators.SqlAnywhere;
+using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors.SqlAnywhere;
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 
 using MySql.Data.MySqlClient;
 
@@ -253,7 +255,8 @@ namespace FluentMigrator.Tests.Integration
                 connection.ConnectionString = serverOptions.ConnectionString;
                 connection.Open();
 
-                var processor = new SQLiteProcessor(connection, new SQLiteGenerator(), announcer, new ProcessorOptions(), factory, new SQLiteQuoter());
+                var quoterOptions = new OptionsWrapper<QuoterOptions>(new QuoterOptions());
+                var processor = new SQLiteProcessor(connection, new SQLiteGenerator(), announcer, new ProcessorOptions(), factory, new SQLiteQuoter(quoterOptions));
                 test(processor);
 
                 if (tryRollback && !processor.WasCommitted)
@@ -296,9 +299,10 @@ namespace FluentMigrator.Tests.Integration
             using (var connection = new NpgsqlConnection(serverOptions.ConnectionString))
             {
                 var pgOptions = new PostgresOptions();
+                var quoterOptions = new OptionsWrapper<QuoterOptions>(new QuoterOptions());
                 var processor = new PostgresProcessor(
                     connection,
-                    new PostgresGenerator(new PostgresQuoter(pgOptions)),
+                    new PostgresGenerator(new PostgresQuoter(quoterOptions, pgOptions)),
                     new TextWriterAnnouncer(TestContext.Out),
                     new ProcessorOptions(),
                     new PostgresDbFactory(serviceProvider: null),

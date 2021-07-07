@@ -16,14 +16,28 @@
 //
 #endregion
 
+using System;
 using System.Linq;
 
 using FluentMigrator.Runner.Generators.Generic;
+using FluentMigrator.Runner.Initialization;
+
+using Microsoft.Extensions.Options;
 
 namespace FluentMigrator.Runner.Generators.Redshift
 {
     public class RedshiftQuoter : GenericQuoter
     {
+        [Obsolete]
+        public RedshiftQuoter()
+        {
+        }
+
+        public RedshiftQuoter(IOptions<QuoterOptions> options)
+            : base(options)
+        {
+        }
+
         public override string FormatBool(bool value) { return value ? "true" : "false"; }
 
         public override string QuoteSchemaName(string schemaName)

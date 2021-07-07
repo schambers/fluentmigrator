@@ -22,6 +22,9 @@
 using System;
 
 using FluentMigrator.Runner.Generators.SqlServer;
+using FluentMigrator.Runner.Initialization;
+
+using Microsoft.Extensions.Options;
 
 namespace FluentMigrator.Runner.Processors.SqlServer
 {
@@ -33,7 +36,8 @@ namespace FluentMigrator.Runner.Processors.SqlServer
         {
             var factory = new SqlServerDbFactory();
             var connection = factory.CreateConnection(connectionString);
-            return new SqlServer2000Processor(connection, new SqlServer2000Generator(new SqlServer2000Quoter()), announcer, options, factory);
+            var quoterOptions = new OptionsWrapper<QuoterOptions>(new QuoterOptions());
+            return new SqlServer2000Processor(connection, new SqlServer2000Generator(new SqlServer2000Quoter(quoterOptions)), announcer, options, factory);
         }
     }
 }

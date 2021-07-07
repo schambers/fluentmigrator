@@ -14,12 +14,27 @@
 // limitations under the License.
 #endregion
 
+using System;
+
 using FluentMigrator.Runner.Generators.Generic;
+using FluentMigrator.Runner.Initialization;
+
+using Microsoft.Extensions.Options;
 
 namespace FluentMigrator.Runner.Generators.Hana
 {
     public class HanaQuoter : GenericQuoter
     {
+        [Obsolete]
+        public HanaQuoter()
+        {
+        }
+
+        public HanaQuoter(IOptions<QuoterOptions> options)
+            : base(options)
+        {
+        }
+
         public override string FormatNationalString(string value)
         {
             return $"N{FormatAnsiString(value)}";

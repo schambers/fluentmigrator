@@ -16,12 +16,27 @@
 //
 #endregion
 
+using System;
+
 using FluentMigrator.Runner.Generators.Generic;
+using FluentMigrator.Runner.Initialization;
+
+using Microsoft.Extensions.Options;
 
 namespace FluentMigrator.Runner.Generators.SqlServer
 {
     public class SqlServer2000Quoter : GenericQuoter
     {
+        [Obsolete]
+        public SqlServer2000Quoter()
+        {
+        }
+
+        public SqlServer2000Quoter(IOptions<QuoterOptions> options)
+            : base(options)
+        {
+        }
+
         public override string OpenQuote { get { return "["; } }
 
         public override string CloseQuote { get { return "]"; } }

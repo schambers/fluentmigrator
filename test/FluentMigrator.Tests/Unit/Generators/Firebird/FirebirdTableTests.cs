@@ -1,5 +1,6 @@
-﻿using FluentMigrator.Runner.Generators.Firebird;
+using FluentMigrator.Runner.Generators.Firebird;
 using FluentMigrator.Runner.Processors.Firebird;
+
 using NUnit.Framework;
 
 using Shouldly;

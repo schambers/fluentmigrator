@@ -16,24 +16,18 @@
 //
 #endregion
 
-using System;
-
-using FluentMigrator.Runner.Initialization;
-
-using Microsoft.Extensions.Options;
-
-namespace FluentMigrator.Runner.Generators.Oracle
+namespace FluentMigrator.Runner.Initialization
 {
-    public class OracleQuoterQuotedIdentifier : OracleQuoterBase
+    /// <summary>
+    /// Conventions of how C# values are converted to SQL
+    /// </summary>
+    public sealed class QuoterOptions
     {
-        [Obsolete]
-        public OracleQuoterQuotedIdentifier()
-        {
-        }
-
-        public OracleQuoterQuotedIdentifier(IOptions<QuoterOptions> options)
-            : base(options)
-        {
-        }
+        /// <summary>
+        /// Gets or sets the value indicating how enum values are handled.<br/>
+        /// If <see langword="true"/> enums are converted to the underlying numeric type, if <see langword="false"/> enums are converted to  a string.<br/>
+        /// Default value: <see langword="false"/>.
+        /// </summary>
+        public bool EnumAsUnderlyingType { get; set; }
     }
 }

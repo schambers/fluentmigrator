@@ -1,5 +1,6 @@
-﻿using FluentMigrator.Runner.Generators.Firebird;
+using FluentMigrator.Runner.Generators.Firebird;
 using FluentMigrator.Runner.Processors.Firebird;
+
 using NUnit.Framework;
 
 using Shouldly;
@@ -14,6 +15,7 @@ namespace FluentMigrator.Tests.Unit.Generators.Firebird
         [SetUp]
         public void Setup()
         {
+            Generator = new FirebirdGenerator(FirebirdOptions.StandardBehaviour());
             Generator = new FirebirdGenerator(FirebirdOptions.StandardBehaviour());
         }
 

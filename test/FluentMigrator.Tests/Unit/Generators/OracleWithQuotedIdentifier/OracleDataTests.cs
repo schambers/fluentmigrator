@@ -1,5 +1,9 @@
 using System;
 using FluentMigrator.Runner.Generators.Oracle;
+using FluentMigrator.Runner.Initialization;
+
+using Microsoft.Extensions.Options;
+
 using NUnit.Framework;
 
 using Shouldly;
@@ -9,13 +13,8 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
     [TestFixture]
     public class OracleDataTests : BaseDataTests
     {
-        protected OracleGenerator Generator;
-
-        [SetUp]
-        public void Setup()
-        {
-            Generator = new OracleGenerator(new OracleQuoterQuotedIdentifier());
-        }
+        private static OracleGenerator CreateFixture(QuoterOptions options = null) =>
+            new OracleGenerator(new OracleQuoterQuotedIdentifier(new OptionsWrapper<QuoterOptions>(options)));
 
         [Test]
         public override void CanDeleteDataForAllRowsWithCustomSchema()
@@ -23,7 +22,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
             var expression = GeneratorTestHelper.GetDeleteDataAllRowsExpression();
             expression.SchemaName = "TestSchema";
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("DELETE FROM \"TestSchema\".\"TestTable1\" WHERE 1 = 1");
         }
 
@@ -32,7 +31,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
         {
             var expression = GeneratorTestHelper.GetDeleteDataAllRowsExpression();
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("DELETE FROM \"TestTable1\" WHERE 1 = 1");
         }
 
@@ -42,7 +41,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
             var expression = GeneratorTestHelper.GetDeleteDataMultipleRowsExpression();
             expression.SchemaName = "TestSchema";
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe(
                 "DELETE FROM \"TestSchema\".\"TestTable1\" WHERE \"Name\" = 'Just''in' AND \"Website\" IS NULL" + Environment.NewLine +
                 ";" + Environment.NewLine +
@@ -54,7 +53,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
         {
             var expression = GeneratorTestHelper.GetDeleteDataMultipleRowsExpression();
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe(
                 "DELETE FROM \"TestTable1\" WHERE \"Name\" = 'Just''in' AND \"Website\" IS NULL" + Environment.NewLine +
                 ";" + Environment.NewLine +
@@ -67,7 +66,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
             var expression = GeneratorTestHelper.GetDeleteDataExpression();
             expression.SchemaName = "TestSchema";
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("DELETE FROM \"TestSchema\".\"TestTable1\" WHERE \"Name\" = 'Just''in' AND \"Website\" IS NULL");
         }
 
@@ -76,7 +75,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
         {
             var expression = GeneratorTestHelper.GetDeleteDataExpression();
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("DELETE FROM \"TestTable1\" WHERE \"Name\" = 'Just''in' AND \"Website\" IS NULL");
         }
 
@@ -84,7 +83,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
         public override void CanDeleteDataWithDbNullCriteria()
         {
             var expression = GeneratorTestHelper.GetDeleteDataExpressionWithDbNullValue();
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("DELETE FROM \"TestTable1\" WHERE \"Name\" = 'Just''in' AND \"Website\" IS NULL");
         }
 
@@ -98,7 +97,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
             expected += " INTO \"TestSchema\".\"TestTable1\" (\"Id\", \"Name\", \"Website\") VALUES (2, 'Na\\te', 'kohari.org')";
             expected += " SELECT 1 FROM DUAL";
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe(expected);
         }
 
@@ -111,7 +110,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
             expected += " INTO \"TestTable1\" (\"Id\", \"Name\", \"Website\") VALUES (2, 'Na\\te', 'kohari.org')";
             expected += " SELECT 1 FROM DUAL";
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe(expected);
         }
 
@@ -122,7 +121,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
             var expression = GeneratorTestHelper.GetInsertGUIDExpression(new Guid("7E487B79-626C-4E7D-811C-BC30AB31C564"));
             expression.SchemaName = "TestSchema";
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("INSERT ALL INTO \"TestSchema\".\"TestTable1\" (\"guid\") VALUES ('797B487E6C627D4E811CBC30AB31C564') SELECT 1 FROM DUAL");
         }
 
@@ -132,8 +131,31 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
             //Oracle can not insert GUID data using string representation
             var expression = GeneratorTestHelper.GetInsertGUIDExpression(new Guid("7E487B79-626C-4E7D-811C-BC30AB31C564"));
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("INSERT ALL INTO \"TestTable1\" (\"guid\") VALUES ('797B487E6C627D4E811CBC30AB31C564') SELECT 1 FROM DUAL");
+        }
+
+        [Test]
+        public override void CanInsertEnumAsString()
+        {
+            var expression = GeneratorTestHelper.GetInsertEnumExpression();
+
+            var result = CreateFixture().Generate(expression);
+            result.ShouldBe("INSERT ALL INTO \"TestTable1\" (\"enum\") VALUES ('Boo') SELECT 1 FROM DUAL");
+        }
+
+        [Test]
+        public override void CanInsertEnumAsUnderlyingType()
+        {
+            var options = new QuoterOptions
+            {
+                EnumAsUnderlyingType = true
+            };
+
+            var expression = GeneratorTestHelper.GetInsertEnumExpression();
+
+            var result = CreateFixture(options).Generate(expression);
+            result.ShouldBe("INSERT ALL INTO \"TestTable1\" (\"enum\") VALUES (2) SELECT 1 FROM DUAL");
         }
 
         [Test]
@@ -142,7 +164,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
             var expression = GeneratorTestHelper.GetUpdateDataExpressionWithAllRows();
             expression.SchemaName = "TestSchema";
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("UPDATE \"TestSchema\".\"TestTable1\" SET \"Name\" = 'Just''in', \"Age\" = 25 WHERE 1 = 1");
         }
 
@@ -151,7 +173,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
         {
             var expression = GeneratorTestHelper.GetUpdateDataExpressionWithAllRows();
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("UPDATE \"TestTable1\" SET \"Name\" = 'Just''in', \"Age\" = 25 WHERE 1 = 1");
         }
 
@@ -161,7 +183,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
             var expression = GeneratorTestHelper.GetUpdateDataExpression();
             expression.SchemaName = "TestSchema";
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("UPDATE \"TestSchema\".\"TestTable1\" SET \"Name\" = 'Just''in', \"Age\" = 25 WHERE \"Id\" = 9 AND \"Homepage\" IS NULL");
         }
 
@@ -170,7 +192,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
         {
             var expression = GeneratorTestHelper.GetUpdateDataExpression();
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("UPDATE \"TestTable1\" SET \"Name\" = 'Just''in', \"Age\" = 25 WHERE \"Id\" = 9 AND \"Homepage\" IS NULL");
         }
 
@@ -179,7 +201,7 @@ namespace FluentMigrator.Tests.Unit.Generators.OracleWithQuotedIdentifier
         {
             var expression = GeneratorTestHelper.GetUpdateDataExpressionWithDbNullValue();
 
-            var result = Generator.Generate(expression);
+            var result = CreateFixture().Generate(expression);
             result.ShouldBe("UPDATE \"TestTable1\" SET \"Name\" = 'Just''in', \"Age\" = 25 WHERE \"Id\" = 9 AND \"Homepage\" IS NULL");
         }
     }

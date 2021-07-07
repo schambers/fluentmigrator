@@ -20,6 +20,7 @@ using System;
 
 using FluentMigrator.Runner.Generators;
 using FluentMigrator.Runner.Generators.DB2;
+using FluentMigrator.Runner.Initialization;
 
 using Microsoft.Extensions.Options;
 
@@ -46,7 +47,8 @@ namespace FluentMigrator.Runner.Processors.DB2
             var factory = new Db2DbFactory(_serviceProvider);
             var connection = factory.CreateConnection(connectionString);
             var generatorOptions = new OptionsWrapper<GeneratorOptions>(new GeneratorOptions());
-            return new Db2Processor(connection, new Db2Generator(new Db2Quoter(), generatorOptions), announcer, options, factory);
+            var quoterOptions = new OptionsWrapper<QuoterOptions>(new QuoterOptions());
+            return new Db2Processor(connection, new Db2Generator(new Db2Quoter(quoterOptions), generatorOptions), announcer, options, factory);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace FluentMigrator.Runner.Processors.DB2
         public Db2Processor(IDbConnection connection, IMigrationGenerator generator, IAnnouncer announcer, IMigrationProcessorOptions options, IDbFactory factory)
             : base(connection, factory, generator, announcer, options)
         {
-            Quoter = new Db2Quoter();
+            Quoter = new Db2Quoter(new OptionsWrapper<QuoterOptions>(new QuoterOptions()));
         }
 
         public Db2Processor(
